@@ -280,6 +280,11 @@ export default class Main extends Component {
                         {isBridgedERC20Block}
                         {preallocationsBlock}
                         {bridgedERC20TokenAddressBlock}
+                        <label style={descriptionLabelStyle}>The registration fee for subIDs. The fee is always in the native currency (ie. this currency).</label>
+                        <div style={{display:'flex', flexDirection:'row'}}>
+                            <label style={{marginBottom:'2vh', marginRight:'1vh'}}>ID Registration Fee:</label>
+                            <input id='idRegistrationFee' style={inputStyle} type="text" placeholder="0.0" required />
+                        </div>
                         <button style={buttonStyle} type='submit'>Create Currency</button>
                     </form>
 				</div>
