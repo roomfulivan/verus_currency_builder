@@ -42,18 +42,22 @@ export default class Main extends Component {
     }
 
     submitForm = async (event) => {
-        event.preventDefault();
-        const currencyName = document.getElementById('currencyName').value;
-        const isMapped = document.getElementById('isMapped').value;
-        const isLiquidityPool = document.getElementById('isLiquidityPool').value;
-        const isCentralized = document.getElementById('isCentralized').value;
-        const isSubIDIssuancePrivate = document.getElementById('isSubIDIssuancePrivate').value;
-        const isNFTToken = document.getElementById('isNFTToken').value;
-        const preAllocations = document.getElementById('preAllocations').value;
-        const currencies = document.getElementById('currencies').value;
-        const isBridgedERC20 = document.getElementById('isBridgedERC20').value;
-        const bridgedERC20TokenAddress = document.getElementById('bridgedERC20TokenAddress').value;
-        //TODO: validate inputs, make API call to get definecurrency command and raw unsigned txn hex
+        try {
+            event.preventDefault();
+            const currencyName = document.getElementById('currencyName').value;
+            const isMapped = document.getElementById('isMapped').value;
+            const isLiquidityPool = document.getElementById('isLiquidityPool').value;
+            const isCentralized = document.getElementById('isCentralized').value;
+            const isSubIDIssuancePrivate = document.getElementById('isSubIDIssuancePrivate').value;
+            const isNFTToken = document.getElementById('isNFTToken').value;
+            const preAllocations = document.getElementById('preAllocations').value;
+            const currencies = document.getElementById('currencies').value;
+            const isBridgedERC20 = document.getElementById('isBridgedERC20').value;
+            const bridgedERC20TokenAddress = document.getElementById('bridgedERC20TokenAddress').value;
+            //TODO: validate inputs, make API call to get definecurrency command and raw unsigned txn hex
+        } catch (error) {
+            console.error(error);
+        }
     }
     
 
