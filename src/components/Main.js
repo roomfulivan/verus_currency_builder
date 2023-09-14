@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import axios from 'axios';
 
 
 
@@ -10,6 +11,8 @@ export default class Main extends Component {
             isMappedCurrency: false,
             isLP: false,
             isBridgedERC20: false,
+            rawUnsignedTxnHex: '',
+            defineCurrencyCommand: '',
 		};
         this.submitForm = this.submitForm.bind(this);
 	}
@@ -44,17 +47,61 @@ export default class Main extends Component {
     submitForm = async (event) => {
         try {
             event.preventDefault();
-            const currencyName = document.getElementById('currencyName').value;
-            const isMapped = document.getElementById('isMapped').value;
-            const isLiquidityPool = document.getElementById('isLiquidityPool').value;
-            const isCentralized = document.getElementById('isCentralized').value;
-            const isSubIDIssuancePrivate = document.getElementById('isSubIDIssuancePrivate').value;
-            const isNFTToken = document.getElementById('isNFTToken').value;
-            const preAllocations = document.getElementById('preAllocations').value;
-            const currencies = document.getElementById('currencies').value;
-            const isBridgedERC20 = document.getElementById('isBridgedERC20').value;
-            const bridgedERC20TokenAddress = document.getElementById('bridgedERC20TokenAddress').value;
+            const creatorIdentity = document.getElementById('creatorIdentity') === null ? null: document.getElementById('creatorIdentity').value;
+            const currencyName = document.getElementById('currencyName') === null ? null: document.getElementById('currencyName').value;
+            const isMapped = document.getElementById('isMapped') === null ? null: document.getElementById('isMapped').value === 'true' ? true : false;
+            const isLiquidityPool = document.getElementById('isLiquidityPool') === null ? null: document.getElementById('isLiquidityPool').value === 'true' ? true : false;
+            const isCentralized = document.getElementById('isCentralized') === null ? null: document.getElementById('isCentralized').value === 'true' ? true : false;
+            const isSubIDIssuancePrivate = document.getElementById('isSubIDIssuancePrivate') === null ? null: document.getElementById('isSubIDIssuancePrivate').value === 'true' ? true : false;
+            const isNFTToken = document.getElementById('isNFTToken') === null ? null: document.getElementById('isNFTToken').value === 'true' ? true : false;
+            const preAllocations = document.getElementById('preAllocations') === null ? null: document.getElementById('preAllocations').value;
+            const currency = document.getElementById('singleCurrency') === null ? null: document.getElementById('singleCurrency').value;
+            const currencies = document.getElementById('currencies') === null ? null: document.getElementById('currencies').value;
+            const amounts = document.getElementById('amounts') === null ? null: document.getElementById('amounts').value;
+            const isBridgedERC20 = document.getElementById('isBridgedERC20') === null ? null: document.getElementById('isBridgedERC20').value === 'true' ? true : false;
+            const bridgedERC20TokenAddress = document.getElementById('bridgedERC20TokenAddress') === null ? null: document.getElementById('bridgedERC20TokenAddress').value;
+            let idRegistrationFee = document.getElementById('idRegistrationFee') === null ? null: document.getElementById('idRegistrationFee').value;
+            console.log(creatorIdentity, currencyName, isMapped, isLiquidityPool, isCentralized, isSubIDIssuancePrivate, isNFTToken, preAllocations, currency, currencies, amounts, isBridgedERC20, bridgedERC20TokenAddress, idRegistrationFee);
+
             //TODO: validate inputs, make API call to get definecurrency command and raw unsigned txn hex
+            let preallocationsArray = [];
+            if (preAllocations !== null && preAllocations !== '') {
+                preallocationsArray = preAllocations.replace(/\s/g, "").split(',').map((item) => {
+                    let formatted = {};
+                    formatted[item.split(':')[0]] = item.split(':')[1];
+                    return formatted;
+                });
+            }
+            let currenciesArray = [];
+            if (currencies !== null && currencies !== '') {
+                currenciesArray = currencies.replace(/\s/g, "").split(',');
+            }
+            let amountsArray = [];
+            if (amounts !== null && amounts !== '') {
+                amountsArray = amounts.replace(/\s/g, "").split(',').map((item) => parseFloat(item));
+            }
+            if (idRegistrationFee !== null && idRegistrationFee !== '') {
+                idRegistrationFee = parseFloat(idRegistrationFee);
+            } else {
+                idRegistrationFee = 0.0;
+            }
+
+            //make api call
+            const response = await axios.post('http://52.13.27.118:5001/createVerusCurrency', {
+                currencyName: currencyName,
+                mappedCurrencies: isMapped ? [currency] : isLiquidityPool ? currenciesArray : null,
+                currencyAmounts: amountsArray.length ? amountsArray : null,
+                idRegistrationFees: idRegistrationFee,
+                preAllocations: (preAllocations && preAllocations.length) ? preallocationsArray : null,
+                isSubIDIssuancePrivate: isSubIDIssuancePrivate,
+                isLiquidityPool: isLiquidityPool,
+                isCentralized: isCentralized,
+                isERC20BridgedCurrency: isBridgedERC20,
+                ERC20TokenAddress: isBridgedERC20 ? bridgedERC20TokenAddress : null,
+            });
+            console.log(response);
+            this.setState({defineCurrencyCommand: response.data.defineCurrencyCommand, rawUnsignedTxnHex: response.data.rawUnsignedTxnHex});
+
         } catch (error) {
             console.error(error);
         }
@@ -87,6 +134,7 @@ export default class Main extends Component {
             border:'none',
             borderRadius:'1vh',
             cursor:'pointer',
+            marginBottom:'5vh'
         }
 
         let mappedCurrencyBlock;
@@ -187,13 +235,31 @@ export default class Main extends Component {
         }
 
         let currenciesBlock = (<></>);
-        if (this.state.isLP || this.state.isMappedCurrency) { // currencies param is only needed if LP or mapped
+        if (this.state.isLP) { // currencies param is only needed if LP
             currenciesBlock = (
                 <>
-                    <label style={descriptionLabelStyle}>Currencies: Comma seperated list of currency names to include in LP or map to. Must only contain 1 currency if it is a Mapped Currency.</label>
+                    <label style={descriptionLabelStyle}>Currencies: Comma seperated list of currency names to include in LP.</label>
                     <div style={{display:'flex', flexDirection:'row'}}>
                         <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Currencies:</label>
-                        <input id='currencies' style={inputStyle} type="text" placeholder="IvanCoin, MonkinsCoin, AlexCoin" required />
+                        <input id='currencies' style={inputStyle} type="text" placeholder="IvanCoin, ETH, VRSC" required />
+                    </div>
+                </>
+            )
+        }
+
+        let singleCurrencyBlock = (<></>);
+        if (this.state.isMappedCurrency) { // only needed if mapped
+            singleCurrencyBlock = (
+                <>
+                    <label style={descriptionLabelStyle}>Currency: The currency to map to. This currency will be swappable 1:1 for your currency.</label>
+                    <div style={{display:'flex', flexDirection:'row'}}>
+                        <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Currency:</label>
+                        <select id='singleCurrency' style={inputStyle} >
+                            <option value="USDC">USDC</option>
+                            <option value="VRSCTEST">VRSC</option>
+                            <option value="BTC">BTC</option>
+                            <option value="ETH">ETH</option>
+                        </select>
                     </div>
                 </>
             )
@@ -240,6 +306,19 @@ export default class Main extends Component {
             )
         }
 
+        let amountsBlock = (<></>);
+        if (this.state.isLP) { // only needed if LP
+            amountsBlock = (
+                <>
+                    <label style={descriptionLabelStyle}>Amounts: Comma seperated list of amounts to mint for each currency in the LP. Must be in the same order as the currencies list.</label>
+                    <div style={{display:'flex', flexDirection:'row'}}>
+                        <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Amounts:</label>
+                        <input id='amounts' style={inputStyle} type="text" placeholder="100.0, 200.5, 300.0" required />
+                    </div>
+                </>
+            )
+        }
+
 		return (
 			<>
 				<div style={{height:'100vh', width:'100vw', backgroundColor:'#000000', color:'#ffffff', display:'flex', alignItems:'center', flexDirection:'column', overflowY:'scroll'}}>
@@ -258,8 +337,10 @@ export default class Main extends Component {
                             <input id='currencyName' style={inputStyle} type="text" placeholder="IvanCoin" required />
                         </div>
                         {mappedCurrencyBlock}
+                        {singleCurrencyBlock}
                         {liquidityPoolBlock}
                         {currenciesBlock}
+                        {amountsBlock}
                         {centralizedBlock}
                         <label style={descriptionLabelStyle}>Public subIDs: anyone can mint subIDs. Private subIDs: only you (owner) can mint subIDs</label>
                         <div style={{display:'flex', flexDirection:'row'}}>
