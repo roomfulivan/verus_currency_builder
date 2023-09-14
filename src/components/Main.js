@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import axios from 'axios';
+import { QRCodeCanvas } from "qrcode.react";
 
 
 
@@ -87,7 +88,7 @@ export default class Main extends Component {
             }
 
             //make api call
-            const response = await axios.post('http://52.13.27.118:5001/createVerusCurrency', {
+            let requestParams = {
                 currencyName: currencyName,
                 mappedCurrencies: isMapped ? [currency] : isLiquidityPool ? currenciesArray : null,
                 currencyAmounts: amountsArray.length ? amountsArray : null,
@@ -98,7 +99,9 @@ export default class Main extends Component {
                 isCentralized: isCentralized,
                 isERC20BridgedCurrency: isBridgedERC20,
                 ERC20TokenAddress: isBridgedERC20 ? bridgedERC20TokenAddress : null,
-            });
+            }
+            console.log('API Call Params:', requestParams)
+            const response = await axios.post('http://52.13.27.118:5001/createVerusCurrency', requestParams);
             console.log(response);
             this.setState({defineCurrencyCommand: response.data.defineCurrencyCommand, rawUnsignedTxnHex: response.data.rawUnsignedTxnHex});
 
@@ -135,6 +138,34 @@ export default class Main extends Component {
             borderRadius:'1vh',
             cursor:'pointer',
             marginBottom:'5vh'
+        }
+
+        let QRCode = <></>;
+        if (this.state.rawUnsignedTxnHex !== '') {
+            QRCode = (
+                <>
+                    <h4>QR code for raw unsigned txn:</h4>
+                    <QRCodeCanvas
+                    id="qrCode"
+                    value={this.state.rawUnsignedTxnHex}
+                    size={300}
+                    bgColor={"#00ff00"}
+                    level={"H"}
+                    />
+                </>
+            );
+        }
+
+        let defineCurrencyCommand = <></>;
+        if (this.state.defineCurrencyCommand !== '') {
+            defineCurrencyCommand = (
+                <>
+                    <h4 style={{marginTop:'4vh'}}>Define currency command:</h4>
+                    <div style={{color:"#ffffff", marginBottom:'5vh', width: '70%'}}>
+                        {this.state.defineCurrencyCommand}
+                    </div>
+                </>
+            );
         }
 
         let mappedCurrencyBlock;
@@ -344,7 +375,7 @@ export default class Main extends Component {
                         {centralizedBlock}
                         <label style={descriptionLabelStyle}>Public subIDs: anyone can mint subIDs. Private subIDs: only you (owner) can mint subIDs</label>
                         <div style={{display:'flex', flexDirection:'row'}}>
-                            <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Public SubIDs:</label>
+                            <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Private SubIDs:</label>
                             <select id='isSubIDIssuancePrivate' style={inputStyle} >
                                 <option value="false">No</option>
                                 <option value="true">Yes</option>
@@ -368,6 +399,8 @@ export default class Main extends Component {
                         </div>
                         <button style={buttonStyle} type='submit'>Create Currency</button>
                     </form>
+                    {QRCode}
+                    {defineCurrencyCommand}
 				</div>
 			</>
 		)
