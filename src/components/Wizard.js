@@ -12,15 +12,15 @@ export default class Wizard extends React.Component {
             creatorIdentity: '',
             isCentralized: false,
             singleCurrency: '',
-            currencies: [],
-            amounts: [],
+            currencies: '',
+            amounts: '',
             bridgedERC20TokenAddress: '',
             isSubIDIssuancePrivate: false,
             isNFTToken: false,
             idRegistrationFee: 0.0,
             startBlock: '',
             endBlock: '',
-            preAllocations: [],
+            preAllocations: '',
             initialSupply: 0.0,
 		};
         this.submitForm = this.submitForm.bind(this);
@@ -60,8 +60,8 @@ export default class Wizard extends React.Component {
             } else if (this.state.currencyType === 'LPToken') {
                 try {
                     await this.setState({
-                        currencies: document.getElementById('currencies').value.replace(/\s/g, "").split(','),
-                        amounts: document.getElementById('amounts').value.replace(/\s/g, "").split(',').map((amount) => parseFloat(amount)),
+                        currencies: document.getElementById('currencies').value,
+                        amounts: document.getElementById('amounts').value,
                     });
                 } catch (e) {
                     console.error(e);
@@ -76,21 +76,13 @@ export default class Wizard extends React.Component {
             await this.setState({step: this.state.step + 1});
         } else if (this.state.step === 3) {
             try {
-                let preallocationsArray;
-                if (document.getElementById('preAllocations') && document.getElementById('preAllocations').value) {
-                    preallocationsArray = document.getElementById('preAllocations').value.replace(/\s/g, "").split(',').map((item) => {
-                        let formatted = {};
-                        formatted[item.split(':')[0]] = item.split(':')[1];
-                        return formatted;
-                    });
-                }
                 await this.setState({
                     isSubIDIssuancePrivate: document.getElementById('isSubIDIssuancePrivate').value === 'true' ? true : false,
                     isNFTToken: document.getElementById('isNFTToken').value === 'true' ? true : false,
                     idRegistrationFee: document.getElementById('idRegistrationFee').value ? parseFloat(document.getElementById('idRegistrationFee').value) : 0.0,
                     startBlock: document.getElementById('startBlock').value ? parseInt(document.getElementById('startBlock').value) : null,
                     endBlock: document.getElementById('endBlock').value ? parseInt(document.getElementById('endBlock').value) : null,
-                    preAllocations: preallocationsArray,
+                    preAllocations: (document.getElementById('preAllocations') && document.getElementById('preAllocations').value) ? document.getElementById('preAllocations').value : null,
                     initialSupply: (document.getElementById('initialSupply') && document.getElementById('initialSupply').value) ? parseInt(document.getElementById('initialSupply').value) : null,
                 });
                 await this.props.createCurrency(this.state);
@@ -170,7 +162,7 @@ export default class Wizard extends React.Component {
                         <label style={descriptionLabelStyle}>Currencies: Comma seperated list of currency names to include in LP.</label>
                         <div style={{display:'flex', flexDirection:'row'}}>
                             <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Currencies:</label>
-                            <input id='currencies' style={inputStyle} type="text" placeholder="IvanCoin, ETH, VRSC" defaultValue={this.state.currencies} required />
+                            <input id='currencies' style={inputStyle} type="text" placeholder="IvanCoin, ETH, VRSCTEST" defaultValue={this.state.currencies} required />
                         </div>
                     </>
                 );
@@ -250,7 +242,7 @@ export default class Wizard extends React.Component {
                         <label style={descriptionLabelStyle}>Preallocations (optional): Mint/distribute tokens on launch - if your currency is an LP Token, preallocations must add up to initial supply. Comma seperated list.</label>
                         <div style={{display:'flex', flexDirection:'row'}}>
                             <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Preallocations:</label>
-                            <input id='preAllocations' style={inputStyle} type="text" placeholder="ivan@: 200, monkins@: 500, alex@: 300" />
+                            <input id='preAllocations' style={inputStyle} type="text" placeholder="ivan@: 200, monkins@: 500, alex@: 300" defaultValue={this.state.preAllocations} />
                         </div>
                     </>
                 );
