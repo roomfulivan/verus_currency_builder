@@ -104,7 +104,7 @@ export default class Wizard extends React.Component {
                         <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Creator Identity:</label>
                         <input id='creatorIdentity' style={inputStyle} type="text" placeholder="ivan@" defaultValue={this.state.creatorIdentity} required />
                     </div>
-                    <label style={descriptionLabelStyle}>The name of the currency to be defined.</label>
+                    <label style={descriptionLabelStyle}>The name of the currency to be defined (must be a top-level identity).</label>
                     <div style={{display:'flex', flexDirection:'row'}}>
                         <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Currency Name:</label>
                         <input id='currencyName' style={inputStyle} type="text" placeholder="IvanCoin" defaultValue={this.state.currencyName} required />
@@ -149,7 +149,7 @@ export default class Wizard extends React.Component {
                             <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Currency:</label>
                             <select id='singleCurrency' style={inputStyle} defaultValue={this.state.singleCurrency} >
                                 <option value="USDC">USDC</option>
-                                <option value="VRSCTEST">VRSC</option>
+                                <option value="VRSCTEST">VRSCTEST</option>
                                 <option value="BTC">BTC</option>
                                 <option value="ETH">ETH</option>
                             </select>
@@ -168,7 +168,7 @@ export default class Wizard extends React.Component {
                 );
                 amountsBlock = (
                     <>
-                        <label style={descriptionLabelStyle}>Amounts: Comma seperated list of amounts to mint for each currency in the LP. Must be in the same order as the currencies list.</label>
+                        <label style={descriptionLabelStyle}>Amounts: Comma seperated list of amounts to deposit for each currency in the LP. Must be in the same order as the currencies list. You must the specified amount of each currency in your wallet.</label>
                         <div style={{display:'flex', flexDirection:'row'}}>
                             <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Amounts:</label>
                             <input id='amounts' style={inputStyle} type="text" placeholder="100.0, 200.5, 300.0" defaultValue={this.state.amounts} required />
@@ -209,7 +209,7 @@ export default class Wizard extends React.Component {
                             <option value="true">Yes</option>
                         </select>
                     </div>
-                    <label style={descriptionLabelStyle}>NFT Token: tokenized onwership over currency ID</label>
+                    <label style={descriptionLabelStyle}>NFT Token: tokenized onwership over currency ID. Royalties on subIDs get split amongst holders of currency.</label>
                     <div style={{display:'flex', flexDirection:'row'}}>
                         <label style={{marginBottom:'2vh', marginRight:'1vh'}}>NFT Token:</label>
                         <select id='isNFTToken' style={inputStyle} defaultValue={this.state.isNFTToken ? "true" : "false"} >
@@ -222,7 +222,7 @@ export default class Wizard extends React.Component {
                         <label style={{marginBottom:'2vh', marginRight:'1vh'}}>ID Registration Fee:</label>
                         <input id='idRegistrationFee' style={inputStyle} type="text" placeholder="0.0" defaultValue={this.state.idRegistrationFee} />
                     </div>
-                    <label style={descriptionLabelStyle}>Start Block (optional, default 15 blocks from now): The launch block of your currency (when it becomes available to the public).</label>
+                    <label style={descriptionLabelStyle}>Start Block (optional, default 15 blocks from now): The launch block of your currency (when it becomes available to the public). Average blocktime on Verus: 1 minute/block. Currency will not be tradable before launch block.</label>
                     <div style={{display:'flex', flexDirection:'row'}}>
                         <label style={{marginBottom:'2vh', marginRight:'1vh'}}>Start Block:</label>
                         <input id='startBlock' style={inputStyle} type="text" placeholder="1511384" defaultValue={this.state.startBlock} />
