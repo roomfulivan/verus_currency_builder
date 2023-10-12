@@ -23,20 +23,24 @@ export default class Main extends Component {
             //format stuff
             let preallocationsArray;
             if (params.preAllocations && params.preAllocations.length) {
-                preallocationsArray = params.preAllocations.replace(/\s/g, "").split(',').map((item) => {
+                preallocationsArray = params.preAllocations.map((item) => {
                     let formatted = {};
-                    formatted[item.split(':')[0]] = item.split(':')[1];
+                    formatted[item.identity] = item.amount;
                     return formatted;
                 });
             }
             if (params.currencies && params.currencies.length) {
-                params.currencies = params.currencies.replace(/\s/g, "").split(',');
-                params.amounts = params.amounts.replace(/\s/g, "").split(',').map((amount) => parseFloat(amount));
+                params.amounts = params.amounts.map((amount) => parseFloat(amount));
                 if (params.amounts.length !== params.currencies.length) {
                     console.error('Currencies and amounts must be the same length');
                     return;
                 }
             }
+            if (params.isPresale) {
+                params.minPreconversions = params.minPreconversions.map((amount) => parseFloat(amount));
+                params.conversions = params.conversions.map((conversion) => parseFloat(conversion));
+            }
+
             
             //TODO: validate inputs, make API call to get definecurrency command and raw unsigned txn hex
             let requestParams = {
@@ -47,11 +51,13 @@ export default class Main extends Component {
                 preAllocations: preallocationsArray && preallocationsArray.length ? preallocationsArray : null,
                 isSubIDIssuancePrivate: params.isSubIDIssuancePrivate,
                 isLiquidityPool: params.currencyType === 'LPToken' ? true : false,
+                conversions: params.conversions && params.conversions.length ? params.conversions : null,
+                minPreconversions: params.minPreconversions && params.minPreconversions.length ? params.minPreconversions : null,
                 isCentralized: params.isCentralized,
                 isERC20BridgedCurrency: params.currencyType === 'BridgedERC20' ? true : false,
                 ERC20TokenAddress: params.bridgedERC20TokenAddress ? params.bridgedERC20TokenAddress : null,
-                startBlock: params.startBlock ? params.startBlock : null,
-                endBlock: params.endBlock ? params.endBlock : null,
+                // startBlock: params.startBlock ? params.startBlock : null,
+                // endBlock: params.endBlock ? params.endBlock : null,
             }
             console.log('API Call Params:', requestParams)
             const response = await axios.post('http://52.13.27.118:5001/createVerusCurrency', requestParams);

@@ -28,6 +28,15 @@
   color: #61dafb;
 }
 
+.datepicker {
+  color: #ffffff;
+  background-color: #000000;
+  margin-bottom: 2vh;
+  width: 150%;
+  border: 1px solid #ffffff;
+  font-size: 2vh;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
